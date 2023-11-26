@@ -5,6 +5,8 @@
 \usepackage{longtable}
 \usepackage{graphicx}
 \usepackage{multicol}
+\usepackage{caption}
+\usepackage{subcaption}
 \title{eDNA Expeditions biodiversity survey of Everglades National Park}
 
 \author{Saara Suominen, Pieter Provoost, Ward Appeltans}
@@ -45,5 +47,27 @@
 \end{multicols}
 
 \input{species.tex}
+
+\begin{figure}
+     \centering
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/sphyrna_tiburo.jpg}
+         \caption{Sphyrna tiburo}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/hypanus_rudis.jpg}
+         \caption{Hypanus rudis}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/epinephelus_itajara.jpg}
+         \caption{Epinephelus itajara}
+     \end{subfigure}
+     \caption{Some of the detected fish species.}
+\end{figure}
 
 \end{document}
