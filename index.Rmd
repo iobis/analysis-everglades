@@ -1,0 +1,113 @@
+---
+title: eDNA analysis Everglades
+output: md_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# eDNA analysis Everglades
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(dpi=300)
+```
+
+## Read dataset
+
+```{r message=FALSE, warning=FALSE}
+library(ggplot2)
+library(dplyr)
+library(purrr)
+library(stringr)
+
+dna_files <- list.files("edna-results/data", "*DNADerivedData*", full.names = TRUE)
+dna_files <- dna_files[str_detect(dna_files, "everglades")]
+occurrence_files <- list.files("edna-results/data", "*Occurrence*", full.names = TRUE)
+occurrence_files <- occurrence_files[str_detect(occurrence_files, "everglades")]
+
+dna <- map(dna_files, read.table, sep = "\t", quote = "", header = TRUE) %>%
+  bind_rows() %>%
+  mutate_if(is.character, na_if, "")
+
+occurrence <- map(occurrence_files, read.table, sep = "\t", quote = "", header = TRUE) %>%
+  bind_rows() %>%
+  mutate_if(is.character, na_if, "") %>%
+  mutate(species = ifelse(taxonRank == "species", scientificName, NA)) %>%
+  left_join(dna, by = "occurrenceID") %>%
+  filter(higherGeography == "Everglades National Park")
+```
+
+## Species
+
+```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
+species <- occurrence %>%
+  filter(!is.na(species)) %>%
+  group_by(phylum, class, order, family, genus, species) %>%
+  summarize(asvs = n(), reads = sum(organismQuantity))
+```
+
+## Tree
+
+```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
+library(data.tree)
+library(tidyr)
+library(ggtree)
+library(ggtreeExtra) # BiocManager::install("ggtreeExtra")
+library(phylobase)
+
+df <- species %>%
+  group_by(phylum, class, order, family) %>%
+  summarize(species = n(), asvs = sum(asvs), reads = sum(reads)) %>%
+  mutate(domain = "Eukaryota") %>%
+  ungroup()
+
+
+top_phyla <- df %>%
+  group_by(phylum) %>%
+  summarize(species = sum(species)) %>%
+  arrange(desc(species)) %>%
+  head(10) %>%
+  pull(phylum)
+
+df_subset <- df %>%
+  filter(phylum %in% top_phyla)
+
+# marker stats
+
+marker_stats <- occurrence %>%
+  group_by(family, pcr_primer_name_forward) %>%
+  summarize(reads = sum(organismQuantity)) %>%
+  mutate(pcr_primer_name_forward = factor(pcr_primer_name_forward))
+
+ggplot() + geom_point(data = marker_stats, aes(family, pcr_primer_name_forward, size = reads))
+
+# dataframe to tree, look into alternatives
+
+paths <- df_subset %>%
+  unite(path, c(domain, phylum, class, order, family), sep = ";")
+nwk <- ToNewick(as.Node(paths, pathName = "path", mode = "table", pathDelimiter = ";"))
+writeLines(nwk, "tree.nwk")
+tree <- read.tree("tree.nwk")
+
+# add data
+
+# tree_data <- df %>%
+#   select(species)
+# row.names(tree_data) <- df$family
+# tree_with_data <- phylo4d(tree, tip.data = tree_data)
+
+# plot
+
+ggtree(tree, layout = "circular") +
+  geom_nodepoint() +
+  geom_fruit(data = df_subset, aes(x = species, y = family, fill = phylum), geom = geom_bar, stat = "identity") +
+  geom_fruit(data = marker_stats, aes(y = family, x = pcr_primer_name_forward, size = reads, color = pcr_primer_name_forward), geom = geom_point, name = "marker") +
+  geom_tiplab(size = 3, offset = 60) +
+  scale_fill_brewer(palette = "Spectral") +
+  scale_color_brewer(palette = "Paired") +
+  ggtitle("Number of species detected by family") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  guides(color = guide_legend(title = "marker"))
+
+ggsave("tree.png", scale = 1.2)
+
+```
