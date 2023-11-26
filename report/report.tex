@@ -1,11 +1,39 @@
-\documentclass[11pt]{report}
+\documentclass[10pt]{article}
+\usepackage[left=3cm, right=3cm]{geometry}
 \usepackage{cmbright}
-\usepackage{lipsum}
+\usepackage{blindtext}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{multicol}
+\title{eDNA Expeditions biodiversity survey of Everglades National Park}
+
+\author{Saara Suominen, Pieter Provoost, Ward Appeltans}
 \begin{document}
 
-dsf
-dssss
+\maketitle
 
-\lipsum
+\begin{multicols}{2}
+[\section{Introduction}]
+\blindtext
+\blindtext
+\end{multicols}
+
+\begin{multicols}{2}
+[\section{Results}]
+\blindtext
+\blindtext
+\end{multicols}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{tree}
+\caption{Number of DNA reads and species detected by family}
+\end{figure}
+
+\begin{multicols}{2}
+[\section{Species list}]
+\end{multicols}
+
+\input{species.tex}
 
 \end{document}

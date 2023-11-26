@@ -18,6 +18,8 @@ library(ggplot2)
 library(dplyr)
 library(purrr)
 library(stringr)
+library(xtable)
+library(rredlist)
 
 dna_files <- list.files("edna-results/data", "*DNADerivedData*", full.names = TRUE)
 dna_files <- dna_files[str_detect(dna_files, "everglades")]
@@ -36,13 +38,34 @@ occurrence <- map(occurrence_files, read.table, sep = "\t", quote = "", header =
   filter(higherGeography == "Everglades National Park")
 ```
 
-## Species
+## Species list
 
 ```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
 species <- occurrence %>%
   filter(!is.na(species)) %>%
   group_by(phylum, class, order, family, genus, species) %>%
-  summarize(asvs = n(), reads = sum(organismQuantity))
+  summarize(asvs = n(), reads = sum(organismQuantity)) %>%
+  ungroup()
+
+redlist <- data.frame()
+page <- 0
+while (TRUE) {
+  res <- rl_sp(page, key = "a936c4f78881e79a326e73c4f97f34a6e7d8f9f9e84342bff73c3ceda14992b9")$result
+  if (length(res) == 0) {
+    break
+  }
+  redlist <- bind_rows(redlist, res)
+  page <- page + 1
+}
+redlist <- redlist %>%
+  filter(is.na(population)) %>%
+  filter(category %in% c("CR", "EN", "EW", "EX", "VU", "NT")) %>%
+  select(species = scientific_name, category)
+
+species <- species %>%
+    left_join(redlist, by = "species")
+
+print(xtable(species %>% select(phylum, class, family, species, category), type = "latex"), file = "report/species.tex", include.rownames = FALSE, tabular.environment = "longtable", floating = FALSE)
 ```
 
 ## Tree
@@ -104,10 +127,9 @@ ggtree(tree, layout = "circular") +
   geom_tiplab(size = 3, offset = 60) +
   scale_fill_brewer(palette = "Spectral") +
   scale_color_brewer(palette = "Paired") +
-  ggtitle("Number of species detected by family") +
+  # ggtitle("Number of species detected by family") +
   theme(plot.title = element_text(hjust = 0.5)) +
   guides(color = guide_legend(title = "marker"))
 
-ggsave("tree.png", scale = 1.2)
-
+ggsave("report/tree.png", scale = 1.2)
 ```

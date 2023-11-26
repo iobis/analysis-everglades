@@ -1,6 +1,6 @@
 # analysis-everglades
 
-![tree](tree.png)
+![tree](report/tree.png)
 
 ## Download data
 
