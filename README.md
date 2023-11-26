@@ -1,6 +1,6 @@
 # analysis-everglades
 
-![tree](report/tree.png)
+See report at <https://github.com/iobis/analysis-everglades/blob/master/report/report.pdf>.
 
 ## Download data
 
