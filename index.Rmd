@@ -20,6 +20,9 @@ library(purrr)
 library(stringr)
 library(xtable)
 library(rredlist)
+library(sf)
+library(ggsvg)
+library(ggrepel)
 
 dna_files <- list.files("edna-results/data", "*DNADerivedData*", full.names = TRUE)
 dna_files <- dna_files[str_detect(dna_files, "everglades")]
@@ -36,6 +39,30 @@ occurrence <- map(occurrence_files, read.table, sep = "\t", quote = "", header =
   mutate(species = ifelse(taxonRank == "species", scientificName, NA)) %>%
   left_join(dna, by = "occurrenceID") %>%
   filter(higherGeography == "Everglades National Park")
+```
+
+## Map
+
+```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
+everglades <- read_sf("map/everglades.gpkg")
+
+sites <- occurrence %>%
+  select(decimalLongitude, decimalLatitude, locality) %>%
+  distinct() %>%
+  st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326, remove = FALSE)
+
+svg_text <- paste(readLines("map/dna.svg"), collapse = "\n")
+
+ggplot() +
+  geom_sf(data = everglades %>% st_transform(4326), fill = NA, color = alpha("#237d2a", 0.5), lwd = 2) +
+  geom_sf(data = st_as_sfc("POLYGON ((-82 26, -80 26, -80 24.8, -82 24.8, -82 26))", crs = 4326), fill = NA, color = NA) +
+  # geom_point_svg(data = sites, aes(decimalLongitude, decimalLatitude), svg = svg_text, fill = "#a83236") +
+  geom_point(data = sites, aes(decimalLongitude, decimalLatitude), color = "#e3007d", shape = 21, stroke = 2, size = 3) +
+  geom_text_repel(data = sites, aes(decimalLongitude, decimalLatitude, label = locality), size = 5, box.padding = 2, point.padding = 1, force_pull = 0.1) +
+  landr::geom_landr(after = 0, fill = "#f2f2f2") +
+  theme_void()
+
+ggsave("report/map.png", scale = 1.2, bg = "white", width = 10, height = 7)
 ```
 
 ## Species list
