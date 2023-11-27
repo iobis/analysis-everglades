@@ -47,14 +47,18 @@ occurrence <- map(occurrence_files, read.table, sep = "\t", quote = "", header =
 ```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
 sample_volumes <- occurrence %>%
   distinct(materialSampleID, sampleSize) %>%
-  mutate(sampleSize = round(sampleSize))
+  mutate(sampleSize = as.integer(sampleSize))
   
 sample_stats <- occurrence %>%
   group_by(locality, materialSampleID) %>%
-  summarize(reads = sum(organismQuantity), species = n_distinct(na.omit(species)), asvs = n()) %>%
+  summarize(reads = sum(organismQuantity), species = n_distinct(na.omit(species)), asvs = n_distinct(DNA_sequence)) %>%
   left_join(sample_volumes, by = "materialSampleID")
 
 stats <- occurrence %>%
+  summarize(reads = sum(organismQuantity), species = n_distinct(na.omit(species)), asvs = n_distinct(DNA_sequence))
+
+marker_stats <- occurrence %>%
+  group_by(pcr_primer_name_forward) %>%
   summarize(reads = sum(organismQuantity), species = n_distinct(na.omit(species)), asvs = n())
 
 print(xtable(sample_stats, type = "latex"), file = "report/sample_stats.tex", include.rownames = FALSE, tabular.environment = "longtable", floating = FALSE)
