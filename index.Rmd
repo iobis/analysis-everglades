@@ -156,7 +156,10 @@ species <- species %>%
 ## Compare with known species
 
 ```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
-mwhs_obis_species <- read.csv("species_lists/mwhs_species_list.csv")
+mwhs_obis_species <- read.csv("species_lists/mwhs_species_list.csv") %>%
+  rename(c("category" = "redlist_category")) %>%
+  mutate(group = na_if(group, "")) %>%
+  mutate(category = na_if(category, ""))
 
 new_species <- species %>%
   filter(!AphiaID %in% mwhs_obis_species$AphiaID)
@@ -215,6 +218,46 @@ addtorow$command <- c(paste(
   sep = ""))
 
 print(xtable(species %>% select(phylum, class, species, group, category, new, vernacular), type = "latex"), file = "report/species.tex", include.rownames = FALSE, tabular.environment = "longtable", floating = FALSE, size = "\\fontsize{9pt}{10pt}\\selectfont", add.to.row = addtorow, hline.after = c(-1))
+```
+
+## Groups statistics
+
+```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
+groups_obis <- mwhs_obis_species %>%
+  filter(!is.na(group)) %>%
+  group_by(group) %>%
+  summarize(obis_species = n_distinct(species))
+
+groups_edna <- species %>%
+  filter(!is.na(group)) %>%
+  group_by(group) %>%
+  summarize(edna_species = n_distinct(species))
+
+group_stats <- groups_obis %>%
+  left_join(groups_edna, by = "group") %>%
+  mutate(fraction = edna_species / obis_species)
+
+print(xtable(group_stats, type = "latex"), file = "report/group_stats.tex", include.rownames = FALSE, tabular.environment = "longtable", floating = FALSE)
+```
+
+## Threatened statistics
+
+```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
+cat_obis <- mwhs_obis_species %>%
+  filter(!is.na(category)) %>%
+  group_by(category) %>%
+  summarize(obis_species = n_distinct(species))
+
+cat_edna <- species %>%
+  filter(!is.na(category)) %>%
+  group_by(category) %>%
+  summarize(edna_species = n_distinct(species))
+
+category_stats <- cat_obis %>%
+  left_join(cat_edna, by = "category") %>%
+  mutate(fraction = edna_species / obis_species)
+
+print(xtable(category_stats, type = "latex"), file = "report/category_stats.tex", include.rownames = FALSE, tabular.environment = "longtable", floating = FALSE)
 ```
 
 ## Taxonomic tree with number of species and reads (top phyla)
