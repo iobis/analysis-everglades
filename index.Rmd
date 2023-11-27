@@ -165,10 +165,39 @@ species <- species %>%
   mutate(new = ifelse(AphiaID %in% mwhs_obis_species$AphiaID, "", "yes"))
 ```
 
+## Add vernacular names
+
+```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
+vernaculars <- read.table("species_lists/vernacularname.txt", sep = "\t", quote = "", header = TRUE) %>%
+  mutate(AphiaID = as.numeric(str_replace(taxonID, "urn:lsid:marinespecies.org:taxname:", ""))) %>%
+  filter(language %in% c("FRA", "ENG")) %>%
+  select(AphiaID, language, vernacularName) %>%
+  group_by(AphiaID, language) %>%
+  summarize(vernacularName = first(vernacularName)) %>%
+  arrange(AphiaID, language) %>%
+  group_by(AphiaID) %>%
+  summarize(vernacular = paste0(vernacularName, collapse = ", "))
+
+species <- species %>%
+  left_join(vernaculars, by = "AphiaID")
+```
+
 ## Output species list
 
 ```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
-print(xtable(species %>% select(phylum, class, species, category, new), type = "latex"), file = "report/species.tex", include.rownames = FALSE, tabular.environment = "longtable", floating = FALSE, size="\\fontsize{9pt}{10pt}\\selectfont")
+addtorow <- list()
+addtorow$pos <- list()
+addtorow$pos[[1]] <- c(0)
+addtorow$command <- c(paste(
+  "\\hline \n",
+  "\\endhead \n",
+  "\\hline \n",
+  "{\\footnotesize Continued on next page} \n",
+  "\\endfoot \n",
+  "\\endlastfoot \n",
+  sep = ""))
+
+print(xtable(species %>% select(phylum, class, species, category, new, vernacular), type = "latex"), file = "report/species.tex", include.rownames = FALSE, tabular.environment = "longtable", floating = FALSE, size = "\\fontsize{9pt}{10pt}\\selectfont", add.to.row = addtorow, hline.after = c(-1))
 ```
 
 ## Taxonomic tree with number of species and reads (top phyla)
