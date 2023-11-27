@@ -178,5 +178,5 @@ ggtree(tree, layout = "circular") +
   theme(plot.title = element_text(hjust = 0.5)) +
   guides(color = guide_legend(title = "marker"))
 
-ggsave("report/tree.png", scale = 1.2)
+ggsave("report/tree.png", scale = 1.2, width=10, height=9)
 ```
