@@ -271,6 +271,7 @@ print(xtable(group_stats, type = "latex"), file = "report/group_stats.tex", incl
 ```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
 cat_obis <- mwhs_obis_species %>%
   filter(!is.na(category)) %>%
+  filter(category %in% c("CR", "EN", "EW", "EX", "VU")) %>%
   group_by(category) %>%
   summarize(obis_species = n_distinct(species))
 
