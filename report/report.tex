@@ -41,8 +41,6 @@ Environmental DNA Expeditions is a global, citizen science initiative that will 
 
 Ocean species shed DNA into the water around them. The genetic material from waste, mucus or cells in one liter of water can determine the species richness in a given area, without the need to actually extract organisms from their environment.
 The cost effective, ethical nature of eDNA sampling has the potential to revolutionize knowledge about ecosystems and species diversity and to inspire the next generation of ocean researchers.
-
-eDNA sampling was conducted in Everglades National Park in April 2023, by filtering up to \SI{1800}{\milli\litre} of seawater through filter cartridges with a \SI{0.8}{\micro\metre} pore size. 20 samples were collected at five locations in the park: Trout Creek, North Eagle Creek, Crocodile Dragover, Whip Ray, and Captain. From these 20 samples, a first batch of 11 samples covering all sites has been processed. DNA from these samples was extracted and amplified, and then sent to the sequencing facility.
 \end{multicols}
 
 \begin{figure}[h]
@@ -52,7 +50,13 @@ eDNA sampling was conducted in Everglades National Park in April 2023, by filter
 \end{figure}
 
 \section*{Results}
-\subsection*{Sampling and DNA sequencing}
+\subsection*{Sampling}
+
+\begin{multicols}{2}
+eDNA sampling was conducted in Everglades National Park in April 2023, by filtering up to \SI{1800}{\milli\litre} of seawater through filter cartridges with a \SI{0.8}{\micro\metre} pore size. 20 samples were collected at five locations in the park: Trout Creek, North Eagle Creek, Crocodile Dragover, Whip Ray, and Captain. From these 20 samples, a first batch of 11 samples covering all sites has been processed. DNA from these samples was extracted and amplified, and then sent to the sequencing facility.
+\end{multicols}
+
+\subsection*{DNA sequencing}
 
 \begin{multicols}{2}
 Sequencing of the DNA from 11 samples resulted in over 20 million sequence reads. From these reads we were able to collect 12,458 unique sequences or ASVs. Matching those sequences with reference sequences in public databases, we were able to detect 163 species. A total of 2,566 are known from Everglades National Park in the OBIS database. Of the 163 species detected, 45 are not known from the park in OBIS.
@@ -63,10 +67,6 @@ Sequencing of the DNA from 11 samples resulted in over 20 million sequence reads
 \input{stats.tex}
 
 \input{sample_stats.tex}
-
-\input{group_stats.tex}
-
-\input{category_stats.tex}
 
 \clearpage
 
@@ -99,14 +99,15 @@ Sequencing of the DNA from 11 samples resulted in over 20 million sequence reads
 \caption{Number of DNA reads and species detected by family}
 \end{figure}
 
-\begin{multicols}{2}
-\blindtext
-\blindtext
-\end{multicols}
-
 \clearpage
 
-\subsection*{Species detection}
+\subsection*{Species identification}
+
+The marker sequences obtained from sequencing were matched with sequence reference databases built using public data available from the National Center for Biotechnology Information (NCBI). This resulted in the identification of 163 species, of which 86 fish species, two mammalian species, and one turtle species. This represents about one sixth of the species known from Everglades National Park in the OBIS database. Seven of the detected species are listed as threatened on the IUCN Red List.
+
+\input{group_stats.tex}
+
+\input{category_stats.tex}
 
 \begin{figure}[h]
      \centering
