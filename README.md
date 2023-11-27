@@ -1,6 +1,6 @@
 # analysis-everglades
 
-See report at <https://github.com/iobis/analysis-everglades/blob/master/report/report.pdf>.
+See report at [<https://github.com/iobis/analysis-everglades/blob/master/report/report.pdf>.](https://raw.githubusercontent.com/iobis/analysis-everglades/master/report/report.pdf).
 
 ## Data sources
 
