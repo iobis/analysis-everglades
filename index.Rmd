@@ -39,8 +39,34 @@ occurrence <- map(occurrence_files, read.table, sep = "\t", quote = "", header =
   bind_rows() %>%
   mutate_if(is.character, na_if, "") %>%
   mutate(species = ifelse(taxonRank == "species", scientificName, NA)) %>%
+  mutate(AphiaID = as.numeric(str_replace(scientificNameID, "urn:lsid:marinespecies.org:taxname:", ""))) %>%
   left_join(dna, by = "occurrenceID") %>%
   filter(higherGeography == "Everglades National Park")
+```
+
+## Cleanup
+
+```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
+cleanup <- read.csv("species_lists/cleanup.csv") %>%
+  mutate(remove = as.logical(remove))
+
+aphiaid_remove <- cleanup %>% filter(remove) %>% pull(AphiaID)
+
+occurrence <- occurrence %>%
+  filter(!AphiaID %in% aphiaid_remove)
+
+aphiaid_replace <- cleanup %>%
+  filter(!is.na(new_AphiaID))
+
+taxa_replace <- wm_record(aphiaid_replace$new_AphiaID) %>%
+  select(AphiaID, phylum, class, order, family, genus, species = scientificname, scientificName = scientificname, scientificNameID = lsid, taxonRank = rank) %>%
+  mutate(taxonRank = tolower(taxonRank)) %>%
+  mutate(old_AphiaID = aphiaid_replace$AphiaID)
+
+occurrence <- occurrence %>%
+  mutate(old_AphiaID = AphiaID) %>%
+  rows_update(taxa_replace, by = "old_AphiaID") %>%
+  select(-old_AphiaID)
 ```
 
 ## Overall statistics
@@ -146,7 +172,7 @@ while (TRUE) {
 }
 redlist <- redlist %>%
   filter(is.na(population)) %>%
-  filter(category %in% c("CR", "EN", "EW", "EX", "VU", "NT")) %>%
+  filter(category %in% c("CR", "EN", "EW", "EX", "VU")) %>%
   select(species = scientific_name, category)
 
 species <- species %>%
@@ -271,7 +297,7 @@ library(phylobase)
 
 df <- species %>%
   group_by(phylum, class, order, family) %>%
-  summarize(species = n(), asvs = sum(asvs), reads = sum(reads)) %>%
+  summarize(species = n(), reads = sum(reads)) %>%
   mutate(domain = "Eukaryota") %>%
   ungroup()
 
