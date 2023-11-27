@@ -89,9 +89,15 @@ marker_stats <- occurrence %>%
   group_by(pcr_primer_name_forward) %>%
   summarize(reads = sum(organismQuantity), species = n_distinct(na.omit(species)), asvs =n_distinct(DNA_sequence))
 
-print(xtable(sample_stats, type = "latex"), file = "report/sample_stats.tex", include.rownames = FALSE, tabular.environment = "longtable", floating = FALSE)
+sample_stats_x <- xtable(sample_stats, type = "latex")
+caption(sample_stats_x) <- "Reads, ASVs, and species by sample."
+label(sample_stats_x) <- "table:samples"
+print(sample_stats_x, file = "report/sample_stats.tex", include.rownames = FALSE, tabular.environment = "longtable", floating = FALSE)
 
-print(xtable(stats, type = "latex"), file = "report/stats.tex", include.rownames = FALSE, tabular.environment = "longtable", floating = FALSE)
+stats_x <- xtable(stats, type = "latex")
+caption(stats_x) <- "Reads, ASVs, and species across all samples."
+label(stats_x) <- "table:stats"
+print(stats_x, file = "report/stats.tex", include.rownames = FALSE, tabular.environment = "longtable", floating = FALSE)
 ```
 
 
@@ -250,7 +256,8 @@ addtorow$command <- c(paste(
   "\\endlastfoot \n",
   sep = ""))
 
-print(xtable(species %>% select(phylum, class, species, group, category, new, vernacular), type = "latex"), file = "report/species.tex", include.rownames = FALSE, tabular.environment = "longtable", floating = FALSE, size = "\\fontsize{9pt}{10pt}\\selectfont", add.to.row = addtorow, hline.after = c(-1))
+species_x <- xtable(species %>% select(phylum, class, species, group, category, new, vernacular), type = "latex")
+print(species_x, file = "report/species.tex", include.rownames = FALSE, tabular.environment = "longtable", floating = FALSE, size = "\\fontsize{9pt}{10pt}\\selectfont", add.to.row = addtorow, hline.after = c(-1))
 ```
 
 ## Groups statistics
@@ -270,7 +277,10 @@ group_stats <- groups_obis %>%
   left_join(groups_edna, by = "group") %>%
   mutate(fraction = edna_species / obis_species)
 
-print(xtable(group_stats, type = "latex"), file = "report/group_stats.tex", include.rownames = FALSE, tabular.environment = "longtable", floating = FALSE)
+group_stats_x <- xtable(group_stats, type = "latex")
+caption(group_stats_x) <- "Number of species in the three target groups, from the OBIS database and from eDNA sampling."
+label(group_stats_x) <- "table:groups"
+print(group_stats_x, file = "report/group_stats.tex", include.rownames = FALSE, tabular.environment = "longtable", floating = FALSE)
 ```
 
 ## Threatened statistics
@@ -291,7 +301,10 @@ category_stats <- cat_obis %>%
   left_join(cat_edna, by = "category") %>%
   mutate(fraction = edna_species / obis_species)
 
-print(xtable(category_stats, type = "latex"), file = "report/category_stats.tex", include.rownames = FALSE, tabular.environment = "longtable", floating = FALSE)
+category_stats_x <- xtable(category_stats, type = "latex")
+caption(category_stats_x) <- "Number of species by IUCN Red List category, from the OBIS database and from eDNA sampling."
+label(category_stats_x) <- "table:categories"
+print(category_stats_x, file = "report/category_stats.tex", include.rownames = FALSE, tabular.environment = "longtable", floating = FALSE)
 ```
 
 ## Taxonomic tree with number of species and reads (top phyla)
