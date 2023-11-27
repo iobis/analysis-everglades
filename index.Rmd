@@ -20,6 +20,7 @@ library(rredlist)
 library(sf)
 library(ggsvg)
 library(ggrepel)
+library(worrms)
 ```
 
 ## Read dataset
@@ -94,9 +95,45 @@ species <- occurrence %>%
   filter(!is.na(species)) %>%
   mutate(AphiaID = as.numeric(str_replace(scientificNameID, "urn:lsid:marinespecies.org:taxname:", ""))) %>%
   group_by(phylum, class, order, family, genus, species, AphiaID) %>%
-  summarize(asvs = n(), reads = sum(organismQuantity)) %>%
+  summarize(reads = sum(organismQuantity)) %>%
   ungroup()
+```
 
+## Resolve to accepted species
+
+```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
+id_batches <- split(species$AphiaID, as.integer((seq_along(species$AphiaID) - 1) / 50))
+resolved <- map(id_batches, wm_record) %>%
+  bind_rows()
+
+bad_ids <- resolved %>%
+  filter(AphiaID != valid_AphiaID) %>%
+  select(AphiaID, valid_AphiaID)
+
+valid_taxa <- wm_record(bad_ids$valid_AphiaID) %>%
+  filter(rank == "Species") %>%
+  select(valid_AphiaID = AphiaID, phylum, class, order, family, genus, species = scientificname, scientificname) %>%
+  inner_join(bad_ids, by = "valid_AphiaID")
+
+species <- species %>%
+  mutate(valid_AphiaID = NA_integer_) %>%
+  rows_update(valid_taxa, by = "AphiaID") %>%
+  mutate(AphiaID = ifelse(!is.na(valid_AphiaID), valid_AphiaID, AphiaID)) %>%
+  select(-valid_AphiaID)
+```
+
+## Merge duplicate names
+
+```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
+species <- species %>%
+  group_by_at(vars(-reads)) %>%
+  summarize(reads = sum(reads)) %>%
+  ungroup()
+```
+
+## Add red list
+
+```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
 redlist <- data.frame()
 page <- 0
 while (TRUE) {
