@@ -92,7 +92,8 @@ ggsave("report/map.png", scale = 1.2, bg = "white", width = 10, height = 7)
 ```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
 species <- occurrence %>%
   filter(!is.na(species)) %>%
-  group_by(phylum, class, order, family, genus, species) %>%
+  mutate(AphiaID = as.numeric(str_replace(scientificNameID, "urn:lsid:marinespecies.org:taxname:", ""))) %>%
+  group_by(phylum, class, order, family, genus, species, AphiaID) %>%
   summarize(asvs = n(), reads = sum(organismQuantity)) %>%
   ungroup()
 
@@ -113,8 +114,24 @@ redlist <- redlist %>%
 
 species <- species %>%
     left_join(redlist, by = "species")
+```
 
-print(xtable(species %>% select(phylum, class, family, species, category), type = "latex"), file = "report/species.tex", include.rownames = FALSE, tabular.environment = "longtable", floating = FALSE)
+## Compare with known species
+
+```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
+mwhs_obis_species <- read.csv("species_lists/mwhs_species_list.csv")
+
+new_species <- species %>%
+  filter(!AphiaID %in% mwhs_obis_species$AphiaID)
+
+species <- species %>%
+  mutate(new = ifelse(AphiaID %in% mwhs_obis_species$AphiaID, "", "yes"))
+```
+
+## Output species list
+
+```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
+print(xtable(species %>% select(phylum, class, species, category, new), type = "latex"), file = "report/species.tex", include.rownames = FALSE, tabular.environment = "longtable", floating = FALSE, size="\\fontsize{9pt}{10pt}\\selectfont")
 ```
 
 ## Taxonomic tree with number of species and reads (top phyla)
