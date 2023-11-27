@@ -4,6 +4,7 @@
 *.nwk
 edna-results
 bluecarbon.pdf
-
+index.md
+index_files
 
 .Rproj.user

@@ -7,13 +7,10 @@ editor_options:
 
 # eDNA analysis Everglades
 
+This notebook contains an exploratory data analysis for Everglades National Park. Images and tables are exported to the `report`` folder.
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(dpi=300)
-```
-
-## Read dataset
-
-```{r message=FALSE, warning=FALSE}
 library(ggplot2)
 library(dplyr)
 library(purrr)
@@ -23,7 +20,11 @@ library(rredlist)
 library(sf)
 library(ggsvg)
 library(ggrepel)
+```
 
+## Read dataset
+
+```{r message=FALSE, warning=FALSE}
 dna_files <- list.files("edna-results/data", "*DNADerivedData*", full.names = TRUE)
 dna_files <- dna_files[str_detect(dna_files, "everglades")]
 occurrence_files <- list.files("edna-results/data", "*Occurrence*", full.names = TRUE)
@@ -41,7 +42,22 @@ occurrence <- map(occurrence_files, read.table, sep = "\t", quote = "", header =
   filter(higherGeography == "Everglades National Park")
 ```
 
-## Map
+## Overall statistics
+
+```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
+sample_stats <- occurrence %>%
+  group_by(locality, materialSampleID) %>%
+  summarize(reads = sum(organismQuantity), species = n_distinct(na.omit(species)), asvs = n())
+
+stats <- occurrence %>%
+  summarize(reads = sum(organismQuantity), species = n_distinct(na.omit(species)), asvs = n())
+
+print(xtable(sample_stats, type = "latex"), file = "report/sample_stats.tex", include.rownames = FALSE, tabular.environment = "longtable", floating = FALSE)
+
+print(xtable(stats, type = "latex"), file = "report/stats.tex", include.rownames = FALSE, tabular.environment = "longtable", floating = FALSE)
+```
+
+## Sampling location map
 
 ```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
 everglades <- read_sf("map/everglades.gpkg")
@@ -51,12 +67,9 @@ sites <- occurrence %>%
   distinct() %>%
   st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326, remove = FALSE)
 
-svg_text <- paste(readLines("map/dna.svg"), collapse = "\n")
-
 ggplot() +
   geom_sf(data = everglades %>% st_transform(4326), fill = NA, color = alpha("#237d2a", 0.5), lwd = 2) +
   geom_sf(data = st_as_sfc("POLYGON ((-82 26, -80 26, -80 24.8, -82 24.8, -82 26))", crs = 4326), fill = NA, color = NA) +
-  # geom_point_svg(data = sites, aes(decimalLongitude, decimalLatitude), svg = svg_text, fill = "#a83236") +
   geom_point(data = sites, aes(decimalLongitude, decimalLatitude), color = "#e3007d", shape = 21, stroke = 2, size = 3) +
   geom_text_repel(data = sites, aes(decimalLongitude, decimalLatitude, label = locality), size = 5, box.padding = 2, point.padding = 1, force_pull = 0.1) +
   landr::geom_landr(after = 0, fill = "#f2f2f2") +
@@ -95,7 +108,7 @@ species <- species %>%
 print(xtable(species %>% select(phylum, class, family, species, category), type = "latex"), file = "report/species.tex", include.rownames = FALSE, tabular.environment = "longtable", floating = FALSE)
 ```
 
-## Tree
+## Taxonomic tree with number of species and reads (top phyla)
 
 ```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
 library(data.tree)
@@ -109,7 +122,6 @@ df <- species %>%
   summarize(species = n(), asvs = sum(asvs), reads = sum(reads)) %>%
   mutate(domain = "Eukaryota") %>%
   ungroup()
-
 
 top_phyla <- df %>%
   group_by(phylum) %>%
@@ -138,7 +150,7 @@ nwk <- ToNewick(as.Node(paths, pathName = "path", mode = "table", pathDelimiter 
 writeLines(nwk, "tree.nwk")
 tree <- read.tree("tree.nwk")
 
-# add data
+# add data to tree
 
 # tree_data <- df %>%
 #   select(species)
@@ -154,7 +166,6 @@ ggtree(tree, layout = "circular") +
   geom_tiplab(size = 3, offset = 60) +
   scale_fill_brewer(palette = "Spectral") +
   scale_color_brewer(palette = "Paired") +
-  # ggtitle("Number of species detected by family") +
   theme(plot.title = element_text(hjust = 0.5)) +
   guides(color = guide_legend(title = "marker"))
 
