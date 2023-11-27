@@ -2,8 +2,13 @@
 
 See report at <https://github.com/iobis/analysis-everglades/blob/master/report/report.pdf>.
 
-## Download data
+## Data sources
+
+- Download eDNA results from GitHub:
 
 ```
 git clone --branch data git@github.com:iobis/edna-results.git
 ```
+
+- OBIS/GBIF species list generated from https://github.com/iobis/mwhs-obis-species with `limit_scope` disabled in `species_list` folder
+- Shapefiles downloaded to `map` folder
