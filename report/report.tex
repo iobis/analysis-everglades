@@ -10,14 +10,21 @@
 \usepackage{subcaption}
 \usepackage{siunitx}
 \usepackage{lscape}
+\usepackage[strict]{changepage}
+
 \title{eDNA Expeditions biodiversity survey of Everglades National Park}
 
 \author{Saara Suominen, Pieter Provoost, Ward Appeltans}
 \begin{document}
 
+%\changepage{}{}{}{}{}{-20mm}{}{}{}
+%\begin{center}
+%  \makebox[\textwidth]{\includegraphics[width=\paperwidth]{images/23.jpg}}
+%\end{center}%\maketitle
+
 \maketitle
 
-\section{Introduction}
+\section*{Introduction}
 
 \begin{multicols}{2}
 Environmental DNA Expeditions is a global, citizen science initiative that will help measure marine biodiversity, and the impacts climate change might have on the distribution patterns of marine life, across UNESCO World Heritage marine sites.
@@ -26,7 +33,6 @@ Ocean species shed DNA into the water around them. The genetic material from was
 The cost effective, ethical nature of eDNA sampling has the potential to revolutionize knowledge about ecosystems and species diversity and to inspire the next generation of ocean researchers.
 
 eDNA sampling was conducted in Everglades National Park in April 2023, by filtering up to \SI{1800}{\milli\litre} of seawater through filter cartridges with a \SI{0.8}{\micro\metre} pore size. 20 samples were collected at five locations in the park: Trout Creek, North Eagle Creek, Crocodile Dragover, Whip Ray, and Captain. From these 20 samples, a first batch of 11 samples covering all sites has been processed. DNA from these samples was extracted and amplified, and then sent to the sequencing facility.
-
 \end{multicols}
 
 \begin{figure}[h]
@@ -35,14 +41,27 @@ eDNA sampling was conducted in Everglades National Park in April 2023, by filter
 \caption{Map of eDNA sampling locations}
 \end{figure}
 
-\section{Results}
+\section*{Results}
+\subsection*{Sampling and DNA sequencing}
 
+\begin{multicols}{2}
 Sequencing of the DNA from 11 samples resulted in over 20 million sequence reads. From these reads we were able to collect 12,507 unique sequences or ASVs. Matching those sequences with reference sequences in public databases, we were able to detect 194 species. A total of 2566 are known from Everglades National Park in the OBIS database. Of the 193 species detected, 77 are not known from the park in OBIS.
+\end{multicols}
 
 \input{stats.tex}
 
 \input{sample_stats.tex}
 
+\clearpage
+
+\begin{center}
+  \makebox[\textwidth]{\includegraphics[width=0.8\paperwidth]{images/23.jpg}}
+  \makebox[\textwidth]{\includegraphics[width=0.8\paperwidth]{images/44.jpg}}
+  \makebox[\textwidth]{\includegraphics[width=0.8\paperwidth]{images/49.jpg}}
+  \makebox[\textwidth]{\includegraphics[width=0.8\paperwidth]{images/54.jpg}}
+\end{center}
+
+\clearpage
 
 \begin{figure}[h!]
 \centering
@@ -57,15 +76,9 @@ Sequencing of the DNA from 11 samples resulted in over 20 million sequence reads
 
 \clearpage
 
-\begin{multicols}{2}
-[\section{Species list}]
-\end{multicols}
+\subsection*{Species detection}
 
-\begin{landscape}
-\input{species.tex}
-\end{landscape}
-
-\begin{figure}
+\begin{figure}[h]
      \centering
      \begin{subfigure}[b]{0.45\textwidth}
          \centering
@@ -86,5 +99,13 @@ Sequencing of the DNA from 11 samples resulted in over 20 million sequence reads
      \end{subfigure}
      \caption{Some of the detected fish species.}
 \end{figure}
+
+\clearpage
+
+\section*{Appendix: species list}
+
+\begin{landscape}
+\input{species.tex}
+\end{landscape}
 
 \end{document}
