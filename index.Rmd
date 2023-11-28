@@ -162,8 +162,6 @@ species <- species %>%
   group_by_at(vars(-reads)) %>%
   summarize(reads = sum(reads)) %>%
   ungroup()
-
-
 ```
 
 ## Add red list
@@ -192,7 +190,7 @@ species <- species %>%
 
 ```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
 mwhs_obis_species <- read.csv("species_lists/mwhs_species_list.csv") %>%
-  rename(c("category" = "redlist_category")) %>%
+  dplyr::rename(c("category" = "redlist_category")) %>%
   mutate(group = na_if(group, "")) %>%
   mutate(category = na_if(category, ""))
 
@@ -226,9 +224,6 @@ species <- species %>%
 fish_classes <- c("Actinopteri", "Cladistii", "Coelacanthi", "Elasmobranchii", "Holocephali", "Myxini", "Petromyzonti", "Teleostei")
 turtle_orders <- c("Testudines")
 mammal_classes <- c("Mammalia")
-
-#keep a version for later
-species_keep <- species
 
 species <- species %>%
   mutate(
@@ -367,7 +362,7 @@ ggtree(tree, layout = "circular") +
   theme(plot.title = element_text(hjust = 0.5)) +
   guides(color = guide_legend(title = "marker"))
 
-ggsave("report/tree.png", scale = 1.2, width=10, height=9)
+ggsave("report/tree.png", scale = 1.2, width = 10, height = 9)
 ```
 
 
@@ -377,7 +372,6 @@ ggsave("report/tree.png", scale = 1.2, width=10, height=9)
 fish_classes <- c("Actinopteri", "Cladistii", "Coelacanthi", "Elasmobranchii", "Holocephali", "Myxini", "Petromyzonti", "Teleostei")
 turtle_orders <- c("Testudines")
 mammal_classes <- c("Mammalia")
-
 bird_class <- c("Aves")
 molluscs_phyla <- c("Mollusca")
 amphibian_class <- c("Amphibia")
@@ -393,7 +387,7 @@ filter_feeders <- c("Phoronida","Bryozoa")
 copepod_class <- c("Copepoda")
 crustacean_class <- c("Malacostraca")
 
-species <- species_keep %>%
+species <- species %>%
   mutate(
     group = case_when(
       class %in% fish_classes ~ "fish",
@@ -425,7 +419,7 @@ Maybe still needs refining, but gives a simple overview of the species diversity
 #PieChart(group, data = occurrence_all_species,main = NULL)
 
 # Color palette (to use in fill) or "viridis" for example
-cols <- hcl.colors(length(unique(species_grouped$group)), "Zissou 1")
+cols <- hcl.colors(length(unique(species$group)), "Zissou 1")
 
 # Donut chart
 
@@ -435,6 +429,7 @@ png(filename="report/donut.png",
   units     = "in",
   res       = 300,
   pointsize = 5)
+
 PieChart(group, data = species,
          fill = cols,
          values = "input",
@@ -442,5 +437,39 @@ PieChart(group, data = species,
          labels_cex = 1,
          main = "Distribution of detected species in groups",
          main_cex=1)
+
 dev.off()
+```
+
+```{r}
+webr::PieDonut(species, aes(group), r0 = 0.6, r1 = 1, showRatioThreshold = 1) +
+  scale_fill_manual(values = hcl.colors(length(unique(species$group)), "Zissou 1")) +
+  theme(plot.margin = unit(c(-2, 1, -2, 1), "cm"))
+
+ggsave("report/donut.png", width = 7, height = 5, bg = "white", scale = 1.3)
+
+# sample_groups <- occurrence %>%
+#     mutate(
+#       group = case_when(
+#         class %in% fish_classes ~ "fish",
+#         order %in% turtle_orders ~ "turtles",
+#         class %in% mammal_classes ~ "mammals",
+#         class %in% bird_class ~ "birds",
+#         class %in% amphibian_class ~ "amphibians",
+#         phylum %in% molluscs_phyla ~ "molluscs",
+#         phylum %in% algae_phyla ~ "algae",
+#         phylum %in% sponge_phyla ~ "sponges",
+#         phylum %in% jelly_phyla ~ "jellyfish",
+#         phylum %in% unicellular ~ "single-cell organisms",
+#         phylum %in% fungi_phyla ~ "fungi",
+#         phylum %in% worms_phyla ~ "worms",
+#         phylum %in% filter_feeders ~ "filter-feeders",
+#         phylum %in% starfish_phyla ~ "starfish",
+#         class %in% copepod_class ~ "copepods",
+#         class %in% crustacean_class ~ "crustaceans"
+#       )
+#     ) %>%
+#     group_by(group, materialSampleID) %>%
+#     summarize(species = n_distinct(na.omit(species))) %>%
+#   filter(!is.na(group))
 ```
