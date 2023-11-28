@@ -11,6 +11,7 @@ This notebook contains an exploratory data analysis for Everglades National Park
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(dpi=300)
+library(lessR)
 library(ggplot2)
 library(dplyr)
 library(purrr)
@@ -21,15 +22,14 @@ library(sf)
 library(ggsvg)
 library(ggrepel)
 library(worrms)
-library(lessR)
 ```
 
 ## Read dataset
 
 ```{r message=FALSE, warning=FALSE}
-dna_files <- list.files("../edna-results/data", "*DNADerivedData*", full.names = TRUE)
+dna_files <- list.files("edna-results/data", "*DNADerivedData*", full.names = TRUE)
 dna_files <- dna_files[str_detect(dna_files, "everglades")]
-occurrence_files <- list.files("../edna-results/data", "*Occurrence*", full.names = TRUE)
+occurrence_files <- list.files("edna-results/data", "*Occurrence*", full.names = TRUE)
 occurrence_files <- occurrence_files[str_detect(occurrence_files, "everglades")]
 
 dna <- map(dna_files, read.table, sep = "\t", quote = "", header = TRUE) %>%
@@ -378,20 +378,20 @@ fish_classes <- c("Actinopteri", "Cladistii", "Coelacanthi", "Elasmobranchii", "
 turtle_orders <- c("Testudines")
 mammal_classes <- c("Mammalia")
 
-bird_class<-c("Aves")
-molluscs_phyla=c("Mollusca")
-amphibian_class=c("Amphibia")
-algae_phyla=c("Chlorophyta","Haptophyta","Rhodophyta","Ochrophyta","Bacillariophyta")
-starfish_phyla=c("Echinodermata")
-sponge_phyla=c("Porifera")
-jelly_phyla=c("Cnidaria","Ctenophora")
-unicellular=c("Cercozoa","Amoebozoa","Myzozoa")
-fungi_phyla=c("Ascomycota","Oomycota")
-worms_phyla=c("Nemertea","Gnathostomulida", "Annelida")
-worms_class=
-filter_feeders=c("Phoronida","Bryozoa")
-copepod_class=c("Copepoda")
-crustacean_class=c("Malacostraca")
+bird_class <- c("Aves")
+molluscs_phyla <- c("Mollusca")
+amphibian_class <- c("Amphibia")
+algae_phyla <- c("Chlorophyta","Haptophyta","Rhodophyta","Ochrophyta","Bacillariophyta")
+starfish_phyla <- c("Echinodermata")
+sponge_phyla <- c("Porifera")
+jelly_phyla <- c("Cnidaria","Ctenophora")
+unicellular <- c("Cercozoa","Amoebozoa","Myzozoa")
+fungi_phyla <- c("Ascomycota","Oomycota")
+worms_phyla <- c("Nemertea","Gnathostomulida", "Annelida")
+# worms_class=
+filter_feeders <- c("Phoronida","Bryozoa")
+copepod_class <- c("Copepoda")
+crustacean_class <- c("Malacostraca")
 
 species <- species_keep %>%
   mutate(
@@ -414,14 +414,12 @@ species <- species_keep %>%
       class %in% crustacean_class ~ "crustaceans"
     )
   )
-
 ```
 
 Maybe still needs refining, but gives a simple overview of the species diversity. 
 
 ```{r}
 #install.packages('lessR')
-library(lessR)
 
 #LessR calculates the percentages of each species. In this case I have percentages of occurrences!
 #PieChart(group, data = occurrence_all_species,main = NULL)
