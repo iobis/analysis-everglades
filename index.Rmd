@@ -100,7 +100,6 @@ label(stats_x) <- "table:stats"
 print(stats_x, file = "report/stats.tex", include.rownames = FALSE, tabular.environment = "longtable", floating = FALSE)
 ```
 
-
 ## Sampling location map
 
 ```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
