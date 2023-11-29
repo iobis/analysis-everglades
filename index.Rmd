@@ -440,11 +440,17 @@ dev.off()
 ```
 
 ```{r}
-webr::PieDonut(species, aes(group), r0 = 0.6, r1 = 1, showRatioThreshold = 1) +
+webr::PieDonut(species, aes(group, label = phylum), r0 = 0.6, r1 = 1, labelpositionThreshold = 1, showRatioThreshold = 1, showPieName = FALSE, use.label = TRUE) +
   scale_fill_manual(values = hcl.colors(length(unique(species$group)), "Zissou 1")) +
   theme(plot.margin = unit(c(-2, 1, -2, 1), "cm"))
 
 ggsave("report/donut.png", width = 7, height = 5, bg = "white", scale = 1.3)
+
+grouped <- species %>% group_by(group) %>% summarize(species = n()) %>% filter(!is.na(group))
+webr::PieDonut(grouped, aes(group, count = species), r0 = 0.6, r1 = 1, labelpositionThreshold = 1, showRatioThreshold = 0.01, showPieName = FALSE, use.labels = TRUE) +
+  scale_fill_manual(values = hcl.colors(length(unique(species$group)), "Zissou 1")) +
+  theme(plot.margin = unit(c(-2, 1, -2, 1), "cm"))
+
 
 # ggiraphExtra::ggPieDonut(species, aes(donuts = group)) +
   # scale_fill_manual(values = hcl.colors(length(unique(species$group)), "Zissou 1")) +
