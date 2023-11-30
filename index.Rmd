@@ -24,6 +24,12 @@ library(ggrepel)
 library(worrms)
 ```
 
+## Config
+
+```{r message=FALSE, warning=FALSE}
+threatened_categories <- c("CR", "EN", "EW", "EX", "VU")
+```
+
 ## Read dataset
 
 ```{r message=FALSE, warning=FALSE}
@@ -179,7 +185,6 @@ while (TRUE) {
 }
 redlist <- redlist %>%
   filter(is.na(population)) %>%
-  filter(category %in% c("CR", "EN", "EW", "EX", "VU")) %>%
   select(species = scientific_name, category)
 
 species <- species %>%
@@ -282,12 +287,12 @@ print(group_stats_x, file = "report/group_stats.tex", include.rownames = FALSE, 
 ```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
 cat_obis <- mwhs_obis_species %>%
   filter(!is.na(category)) %>%
-  filter(category %in% c("CR", "EN", "EW", "EX", "VU")) %>%
+  filter(category %in% threatened_categories) %>%
   group_by(category) %>%
   summarize(obis_species = n_distinct(species))
 
 cat_edna <- species %>%
-  filter(!is.na(category)) %>%
+  filter(category %in% threatened_categories) %>%
   group_by(category) %>%
   summarize(edna_species = n_distinct(species))
 
@@ -365,7 +370,6 @@ ggtree(tree, layout = "circular") +
 ggsave("report/tree.png", scale = 1.2, width = 10, height = 9)
 ```
 
-
 ## Plot overview of species composition
 
 ```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
@@ -382,7 +386,6 @@ jelly_phyla <- c("Cnidaria","Ctenophora")
 unicellular <- c("Cercozoa","Amoebozoa","Myzozoa")
 fungi_phyla <- c("Ascomycota","Oomycota")
 worms_phyla <- c("Nemertea","Gnathostomulida", "Annelida")
-# worms_class=
 filter_feeders <- c("Phoronida","Bryozoa")
 copepod_class <- c("Copepoda")
 crustacean_class <- c("Malacostraca")
