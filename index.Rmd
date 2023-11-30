@@ -195,7 +195,8 @@ species <- species %>%
 
 ```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
 mwhs_obis_species <- read.csv("species_lists/mwhs_species_list.csv") %>%
-  dplyr::rename(c("category" = "redlist_category")) %>%
+  select(-redlist_category) %>%
+  left_join(redlist, by = "species") %>%
   mutate(group = na_if(group, "")) %>%
   mutate(category = na_if(category, ""))
 
@@ -204,6 +205,19 @@ new_species <- species %>%
 
 species <- species %>%
   mutate(new = ifelse(AphiaID %in% mwhs_obis_species$AphiaID, "", "yes"))
+```
+
+## Redlist species according to OBIS
+
+```{r message=FALSE, warning=FALSE, fig.width=10, fig.height=5}
+mwhs_obis_species %>%
+  filter(obis) %>%
+  group_by(category) %>%
+  summarize(n())
+
+mwhs_obis_species %>%
+  group_by(category) %>%
+  summarize(n())
 ```
 
 ## Add vernacular names
