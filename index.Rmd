@@ -60,7 +60,7 @@ cleanup <- read.csv("species_lists/cleanup.csv") %>%
 aphiaid_remove <- cleanup %>% filter(remove) %>% pull(AphiaID)
 
 occurrence <- occurrence %>%
-  filter(!AphiaID %in% aphiaid_remove)
+  filter(!(AphiaID %in% aphiaid_remove))
 
 aphiaid_replace <- cleanup %>%
   filter(!is.na(new_AphiaID))
